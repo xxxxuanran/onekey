@@ -106,4 +106,44 @@ Architectures: $(dpkg --print-architecture)
 Signed-By: /usr/share/keyrings/caddy-stable-archive-keyring.gpg
 EOF
     apt-get update
+    apt-get install -yq caddy
 fi
+
+mkdir -p /www/caddy/default
+chown -R caddy:caddy /www/caddy
+mkdir -p /var/log/caddy
+chown -R caddy:caddy /var/log/caddy
+mkdir -p /etc/caddy/conf.d
+cat > /etc/caddy/Caddyfile <<EOF
+{
+	admin off
+}
+import /etc/caddy/conf.d/*.conf
+EOF
+cat > /etc/caddy/conf.d/default.conf <<EOF
+:80 {
+	header {
+		Strict-Transport-Security "max-age=31536000; preload"
+		X-Content-Type-Options nosniff
+		X-Frame-Options SAMEORIGIN
+	}
+	root * /www/caddy/default
+	encode gzip
+	# php_fastcgi localhost:9000
+	file_server {
+		index index.html
+	}
+	log {
+		output file /var/log/caddy/access.log {
+			roll_size 100mb
+			roll_keep 3
+			roll_keep_for 7d
+		}
+	}
+}
+EOF
+systemctl daemon-reload
+systemctl start caddy
+sleep 3
+systemctl restart caddy
+systemctl enable caddy
