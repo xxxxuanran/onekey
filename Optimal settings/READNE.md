@@ -69,3 +69,13 @@ routes:
   - to: 2001::/64
     type: local
 ```
+
+### wgcf-cli
+```shell
+wget https://github.com/ArchiveNetwork/wgcf-cli/releases/download/v0.3.6/wgcf-cli-linux-64.tar.zstd
+tar -xvf wgcf-cli-linux-64.tar.zstd
+rm ./README.md ./LICENSE ./wgcf-cli-linux-64.tar.zstd
+mv wgcf-cli /usr/local/bin/wgcf-cli
+chmod +x /usr/local/bin/wgcf-cli
+```
+
