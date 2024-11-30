@@ -31,11 +31,35 @@ mkdir -p /etc/apt/sources.list.d/bak
 mv /etc/apt/sources.list.d/*.sources /etc/apt/sources.list.d/bak
 ```
 
+#### Debian
+```shell
+apt-get update
+apt-get install -y ca-certificates apt-transport-https
+mkdir -p /etc/apt/mirrors
+echo "https://deb.debian.org/debian/" > /etc/apt/mirrors/debian.list
+echo "https://security.debian.org/debian-security/" > /etc/apt/mirrors/debian-security.list
+cat > '/etc/apt/sources.list.d/debian.sources' << EOF
+Types: deb
+URIs: mirror+file:///etc/apt/mirrors/debian.list
+Suites: bookworm bookworm-updates bookworm-backports
+Components: main contrib non-free non-free-firmware
+
+Types: deb
+URIs: mirror+file:///etc/apt/mirrors/debian-security.list
+Suites: bookworm-security
+Components: main contrib non-free non-free-firmware
+EOF
+echo "# See /etc/apt/sources.list.d/debian.sources" > /etc/apt/sources.list
+```
+
 #### Ubuntu
+canonical 并没有为 Ubuntu 加上 CDN，且固执地认为有软件包签名的情况下不需要 SSL 加密传输，所以配置为 Azure + xTom
 ```shell
 echo "http://azure.archive.ubuntu.com/ubuntu/ priority:5" > /etc/apt/mirrors/ubuntu.list
-echo "http://archive.ubuntu.com/ubuntu/" >> /etc/apt/mirrors/ubuntu.list
-echo "http://azure.archive.ubuntu.com/ubuntu" > /etc/apt/mirrors/ubuntu-security.list
+echo "https://mirror-cdn.xtom.com/ubuntu/" >> /etc/apt/mirrors/ubuntu.list
+echo "http://azure.archive.ubuntu.com/ubuntu/ priority:5" > /etc/apt/mirrors/ubuntu-security.list
+echo "https://mirror-cdn.xtom.com/ubuntu/ priority:3" >> /etc/apt/mirrors/ubuntu-security.list
+echo "http://security.ubuntu.com/ubuntu/" >> /etc/apt/mirrors/ubuntu-security.list
 cat > '/etc/apt/sources.list.d/ubuntu.sources' << __EOF__
 Types: deb
 URIs: mirror+file:///etc/apt/mirrors/ubuntu.list
